@@ -2,53 +2,35 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>3秒待ってから開く URLオープナー</title>
+<title>URLオープナー（ディレイ付き）</title>
 <style>
-body { font-family: sans-serif; text-align: center; margin-top: 40px; }
-button {
-  padding: 12px 25px;
-  font-size: 18px;
-  cursor: pointer;
-  border-radius: 8px;
-  transition: 0.1s;
-}
-button:active { transform: scale(0.95); background: #e0e0e0; }
-#status { margin-top: 20px; font-size: 16px; color: #444; }
+  body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+  button { padding: 10px 20px; font-size: 18px; cursor: pointer; }
 </style>
 </head>
 <body>
-<h2>3秒待ってから開く URLオープナー</h2>
-<p>ボタンを連打してもページは移動せず、3秒後に順番に開くで！</p>
-<button id="openBtn">開く！（連打OK）</button>
-<div id="status"></div>
+  <h2>URLオープナー</h2>
+  <p>押すたびに3秒後に開く（連打OK）</p>
+  <button id="openBtn">開く</button>
 
-<script>
-const urls = [
-  "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1761988917",
-  "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1701197940"
-];
-let index = 0;
-let waiting = false;
+  <script>
+    const urls = [
+      "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=%201761988917",
+      "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=%201701197940"
+    ];
 
-document.getElementById("openBtn").onclick = () => {
-  if (waiting) return; // 待機中は無視
+    let clickCount = 0;
 
-  if (index < urls.length) {
-    const u = urls[index];
-    waiting = true;
-    document.getElementById("status").textContent = "3秒後に開きます…";
+    document.getElementById("openBtn").addEventListener("click", () => {
+      clickCount++;
+      const delay = clickCount * 3000; // 3秒 × クリック回数
 
-    setTimeout(() => {
-      window.open(u, "_blank", "noopener,noreferrer"); // フォーカス奪われない
-      document.getElementById("status").textContent = `URL ${index + 1} を開きました！`;
-      index++;
-      waiting = false;
-      if (index >= urls.length) {
-        document.getElementById("status").textContent = "すべて開き終わりました！";
-      }
-    }, 3000);
-  }
-};
-</script>
+      setTimeout(() => {
+        urls.forEach(url => {
+          window.open(url, "_blank");
+        });
+      }, delay);
+    });
+  </script>
 </body>
 </html>
