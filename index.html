@@ -17,43 +17,80 @@ button {
   transition: 0.2s;
 }
 button:hover { background-color: #005fa3; }
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+#status {
+  margin-top: 20px;
+  font-size: 16px;
+  color: #333;
+}
 </style>
 </head>
 <body>
-
 <h2>setTimeout禁止・3秒遅延・連打同時オープン</h2>
-
 <button id="openBtn">URLを開く</button>
-
+<div id="status"></div>
 <script>
 const urls = [
   "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1761988917",
   "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1701197940"
 ];
 
-let clickCount = 0;
+let pendingClicks = [];
+let isProcessing = false;
 
-// 🧠 非同期的に時間を潰す関数（setTimeout不使用）
-async function busyWait(ms) {
+// requestAnimationFrameベースの遅延関数
+async function rafWait(ms) {
   const end = performance.now() + ms;
-  while (performance.now() < end) {
-    // 1ミリごとに他のイベントを処理（ブロック回避）
-    await Promise.resolve();
-  }
+  return new Promise(resolve => {
+    function tick() {
+      if (performance.now() >= end) {
+        resolve();
+      } else {
+        requestAnimationFrame(tick);
+      }
+    }
+    requestAnimationFrame(tick);
+  });
 }
 
 document.getElementById("openBtn").addEventListener("click", async function () {
-  const currentClick = ++clickCount;
-  const targetUrl = urls[(currentClick - 1) % urls.length];
-  console.log(`🕒 [${currentClick}] 3秒待機開始`);
-
-  // 各クリックが独立して「非同期3秒待ち」
-  await busyWait(3000);
-
-  console.log(`🚀 [${currentClick}] 開く: ${targetUrl}`);
-  window.open(targetUrl, "_blank");
+  const btn = this;
+  const statusDiv = document.getElementById("status");
+  
+  // クリックを記録
+  const clickIndex = pendingClicks.length;
+  const targetUrl = urls[clickIndex % urls.length];
+  pendingClicks.push({ index: clickIndex + 1, url: targetUrl });
+  
+  console.log(`🕒 [${clickIndex + 1}] 3秒待機開始`);
+  statusDiv.textContent = `待機中: ${pendingClicks.length}個のURL`;
+  
+  // 最初のクリックの場合、処理を開始
+  if (!isProcessing) {
+    isProcessing = true;
+    btn.disabled = true;
+    
+    // 3秒待機
+    await rafWait(3000);
+    
+    // 溜まっているすべてのクリックを一気に開く
+    const clicksToOpen = [...pendingClicks];
+    pendingClicks = [];
+    
+    console.log(`🚀 ${clicksToOpen.length}個のURLを同時に開きます`);
+    clicksToOpen.forEach(click => {
+      console.log(`🚀 [${click.index}] 開く: ${click.url}`);
+      window.open(click.url, "_blank");
+    });
+    
+    statusDiv.textContent = `${clicksToOpen.length}個のURLを開きました`;
+    btn.disabled = false;
+    isProcessing = false;
+  }
 });
 </script>
-
 </body>
 </html>
