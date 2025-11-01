@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>高速連打OK・setTimeoutなし・3秒遅延オープナー</title>
+<title>setTimeout禁止・独立3秒遅延・連打同時開放</title>
 <style>
 body { font-family: sans-serif; text-align: center; margin-top: 40px; }
 button {
@@ -21,7 +21,7 @@ button:hover { background-color: #005fa3; }
 </head>
 <body>
 
-<h2>setTimeout禁止・3秒待機・高速連打OK</h2>
+<h2>setTimeout禁止・3秒遅延・連打同時オープン</h2>
 
 <button id="openBtn">URLを開く</button>
 
@@ -33,26 +33,25 @@ const urls = [
 
 let clickCount = 0;
 
-// 🔧 擬似的に非同期を実現する（ブラウザを固めない）
-function fakeDelay(ms) {
-  const start = performance.now();
-  while (performance.now() - start < ms) {
-    // 小さなループを使い、他のクリックも処理できるように
-    if (performance.now() - start > ms) break;
+// 🧠 非同期的に時間を潰す関数（setTimeout不使用）
+async function busyWait(ms) {
+  const end = performance.now() + ms;
+  while (performance.now() < end) {
+    // 1ミリごとに他のイベントを処理（ブロック回避）
+    await Promise.resolve();
   }
 }
 
-document.getElementById("openBtn").addEventListener("click", function () {
+document.getElementById("openBtn").addEventListener("click", async function () {
   const currentClick = ++clickCount;
   const targetUrl = urls[(currentClick - 1) % urls.length];
-  console.log(`🕒 [${currentClick}] 疑似3秒待機を開始`);
+  console.log(`🕒 [${currentClick}] 3秒待機開始`);
 
-  // 独立スコープで3秒待機＋openを擬似並列処理
-  Promise.resolve().then(() => {
-    fakeDelay(3000);
-    console.log(`🚀 [${currentClick}] 開く: ${targetUrl}`);
-    window.open(targetUrl, "_blank");
-  });
+  // 各クリックが独立して「非同期3秒待ち」
+  await busyWait(3000);
+
+  console.log(`🚀 [${currentClick}] 開く: ${targetUrl}`);
+  window.open(targetUrl, "_blank");
 });
 </script>
 
