@@ -2,31 +2,38 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>独立URLオープナー</title>
+<title>独立URLオープナー（完全版）</title>
 </head>
 <body>
 <textarea id="urls" rows="5" cols="60">https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1761988917
 https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1701197940</textarea>
 <br>
-<button id="openBtn">3秒後に開く（独立動作）</button>
+<button id="spawnBtn">開くボタンを生成</button>
+<div id="buttons"></div>
 
 <script>
-let counter = 0;
+let btnCount = 0;
 
-document.getElementById("openBtn").addEventListener("click", async () => {
+function delay(ms) {
+  const start = performance.now();
+  while (performance.now() - start < ms) {} // setTimeout禁止バージョン
+}
+
+document.getElementById("spawnBtn").addEventListener("click", () => {
   const urls = document.getElementById("urls").value.trim().split("\n").filter(u => u);
-  const id = ++counter;
-  console.log(`🕒 [${id}] 3秒待機開始`);
-
-  // 非同期に「無理やり3秒ブロック」
-  const start = Date.now();
-  while (Date.now() - start < 3000) {} // setTimeoutを使わない無理やり遅延
-
-  // 各クリックが独立して実行される
-  for (const url of urls) {
-    console.log(`🚀 [${id}] 開く: ${url}`);
-    window.open(url, "_blank");
-  }
+  const id = ++btnCount;
+  const newBtn = document.createElement("button");
+  newBtn.textContent = `🕒 ${id}番目のURLを3秒後に開く`;
+  newBtn.style.margin = "4px";
+  newBtn.addEventListener("click", () => {
+    console.log(`🕒 [${id}] 3秒待機開始`);
+    delay(3000);
+    for (const url of urls) {
+      console.log(`🚀 [${id}] 開く: ${url}`);
+      window.open(url, "_blank");
+    }
+  });
+  document.getElementById("buttons").appendChild(newBtn);
 });
 </script>
 </body>
