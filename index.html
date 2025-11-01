@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>複数URLオープナー（各ボタン独立3秒遅延）</title>
+<title>複数URLオープナー（3秒後に新しいタブで開く）</title>
 <style>
 body {
   font-family: sans-serif;
@@ -29,8 +29,7 @@ button:hover {
 </head>
 <body>
 
-<h2>複数URLオープナー（各ボタン独立・3秒後に開く）</h2>
-
+<h2>複数URLオープナー（3秒後に開く）</h2>
 <div id="buttons"></div>
 
 <script>
@@ -45,37 +44,21 @@ const container = document.getElementById("buttons");
 
 urls.forEach((item, index) => {
   const btn = document.createElement("button");
-  btn.textContent = item.name;
+  btn.textContent = `${item.name}`;
   btn.addEventListener("click", () => {
-    console.log(`🟢 [${index + 1}] '${item.name}' 押下: 空タブを開きます`);
-    const newTab = window.open("about:blank", "_blank");
+    console.log(`🟢 [${index + 1}] '${item.name}' ボタン押下: 3秒後に開きます`);
+    btn.disabled = true;
+    btn.textContent = `${item.name}（3秒待機中...）`;
 
-    if (!newTab) {
-      console.warn(`⚠️ [${index + 1}] '${item.name}' ポップアップブロックされました`);
-      return;
-    }
-
-    // 空タブにカウントダウンを表示（見た目が自然）
-    newTab.document.write(`
-      <html><body style="font-family:sans-serif;text-align:center;margin-top:50px;">
-      <h2>3秒後に移動します...</h2>
-      <p id="count">3</p>
-      <script>
-        let t = 3;
-        const c = document.getElementById('count');
-        const timer = setInterval(()=>{
-          t--;
-          c.textContent = t;
-          if(t <= 0){
-            clearInterval(timer);
-            location.href = "${item.url}";
-          }
-        },1000);
-      <\/script>
-      </body></html>
-    `);
-
-    console.log(`⏳ [${index + 1}] '${item.name}' 3秒後に遷移予定: ${item.url}`);
+    setTimeout(() => {
+      console.log(`🚀 [${index + 1}] '${item.name}' URLを開く: ${item.url}`);
+      const newTab = window.open(item.url, "_blank");
+      if (!newTab) {
+        console.warn(`⚠️ [${index + 1}] '${item.name}' ポップアップブロックの可能性`);
+      }
+      btn.disabled = false;
+      btn.textContent = item.name;
+    }, 3000);
   });
   container.appendChild(btn);
 });
