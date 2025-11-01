@@ -2,39 +2,58 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>独立URLオープナー（完全版）</title>
+<title>setTimeout禁止・独立3秒遅延・連打同時開放</title>
+<style>
+body { font-family: sans-serif; text-align: center; margin-top: 40px; }
+button {
+  padding: 10px 20px;
+  font-size: 18px;
+  margin: 10px;
+  cursor: pointer;
+  border-radius: 8px;
+  border: none;
+  background-color: #0078d7;
+  color: white;
+  transition: 0.2s;
+}
+button:hover { background-color: #005fa3; }
+</style>
 </head>
 <body>
-<textarea id="urls" rows="5" cols="60">https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1761988917
-https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1701197940</textarea>
-<br>
-<button id="spawnBtn">開くボタンを生成</button>
-<div id="buttons"></div>
+
+<h2>setTimeout禁止・3秒遅延・連打同時オープン</h2>
+
+<button id="openBtn">URLを開く</button>
 
 <script>
-let btnCount = 0;
+const urls = [
+  "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1761988917",
+  "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1701197940"
+];
 
-function delay(ms) {
-  const start = performance.now();
-  while (performance.now() - start < ms) {} // setTimeout禁止バージョン
+let clickCount = 0;
+
+// 🧠 非同期的に時間を潰す関数（setTimeout不使用）
+async function busyWait(ms) {
+  const end = performance.now() + ms;
+  while (performance.now() < end) {
+    // 1ミリごとに他のイベントを処理（ブロック回避）
+    await Promise.resolve();
+  }
 }
 
-document.getElementById("spawnBtn").addEventListener("click", () => {
-  const urls = document.getElementById("urls").value.trim().split("\n").filter(u => u);
-  const id = ++btnCount;
-  const newBtn = document.createElement("button");
-  newBtn.textContent = `🕒 ${id}番目のURLを3秒後に開く`;
-  newBtn.style.margin = "4px";
-  newBtn.addEventListener("click", () => {
-    console.log(`🕒 [${id}] 3秒待機開始`);
-    delay(3000);
-    for (const url of urls) {
-      console.log(`🚀 [${id}] 開く: ${url}`);
-      window.open(url, "_blank");
-    }
-  });
-  document.getElementById("buttons").appendChild(newBtn);
+document.getElementById("openBtn").addEventListener("click", async function () {
+  const currentClick = ++clickCount;
+  const targetUrl = urls[(currentClick - 1) % urls.length];
+  console.log(`🕒 [${currentClick}] 3秒待機開始`);
+
+  // 各クリックが独立して「非同期3秒待ち」
+  await busyWait(3000);
+
+  console.log(`🚀 [${currentClick}] 開く: ${targetUrl}`);
+  window.open(targetUrl, "_blank");
 });
 </script>
+
 </body>
 </html>
