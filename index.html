@@ -169,6 +169,13 @@
 
   <div id="clickCount">クリック: 0回</div>
 
+  <div id="jokeMessage">
+    <h2>😄 これはジョークプログラムです</h2>
+    <p>履歴に「呪」に関するスレッドが追加されていると思います。</p>
+    <p>削除したい場合はこちらから→<br>
+    <a href="https://hayabusa.open2ch.net/test/history.cgi" target="_blank">https://hayabusa.open2ch.net/test/history.cgi</a></p>
+  </div>
+
   <script>
     const urls = [
       "https://wakawakatnt.github.io/ONJ-BENRI/",
@@ -194,6 +201,7 @@
 
     let clickCount = 0;
     let currentUrlIndex = 0;
+    let firstClickTime = null;
 
     async function busyWait(ms) {
       const end = performance.now() + ms;
@@ -241,6 +249,13 @@
       
       console.log(`🚀 [${clickCount}] 開く: ${targetUrl}`);
       window.open(targetUrl, "_blank");
+      
+      // 全てのURLを開き終わったらジョークメッセージを表示
+      if (clickCount >= urls.length) {
+        setTimeout(() => {
+          document.getElementById('jokeMessage').style.display = 'block';
+        }, 1000);
+      }
     });
   </script>
 </body>
