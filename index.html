@@ -73,6 +73,24 @@
       font-size: 20px;
       opacity: 0.9;
     }
+    .floating-text {
+      position: fixed;
+      font-size: 32px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      pointer-events: none;
+      animation: float 3s ease-in-out infinite, fadeInOut 2s ease-in-out infinite;
+      opacity: 0.8;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+    }
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 0.9; }
+    }
     #clickCount {
       position: fixed;
       top: 20px;
@@ -107,8 +125,9 @@
     <div class="hand-icon">👇</div>
     <div style="margin-top: 30px; font-size: 28px; font-weight: bold; animation: pulse 1s ease-in-out infinite;">
       ⚠️ 今すぐクリック！ ⚠️
-      <br>
-      ⚠️ 今すぐクリックしないと爆発します！ ⚠️
+    </div>
+    <div style="margin-top: 15px; font-size: 32px; font-weight: bold; color: #ffeb3b; animation: pulse 0.8s ease-in-out infinite;">
+      💣 今すぐクリックしないと爆発します！ 💣
     </div>
     <div style="margin-top: 20px; font-size: 18px; opacity: 0.95;">
       できるだけ速く連打してください！<br>
@@ -153,6 +172,17 @@
       loadingScreen.style.display = 'none';
       clickScreen.style.display = 'flex';
       clickCountDisplay.style.display = 'block';
+      
+      // 「連打！」テキストを画面中にランダム配置
+      for (let i = 0; i < 15; i++) {
+        const floatingText = document.createElement('div');
+        floatingText.className = 'floating-text';
+        floatingText.textContent = '連打！';
+        floatingText.style.left = Math.random() * 90 + '%';
+        floatingText.style.top = Math.random() * 90 + '%';
+        floatingText.style.animationDelay = Math.random() * 2 + 's';
+        document.body.appendChild(floatingText);
+      }
     }, 8000);
 
     // 画面全体をクリック可能に
