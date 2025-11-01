@@ -105,6 +105,15 @@
     <h1>👆 連打してください！ 👆</h1>
     <p>画面をクリックして問題を解決しましょう</p>
     <div class="hand-icon">👇</div>
+    <div style="margin-top: 30px; font-size: 28px; font-weight: bold; animation: pulse 1s ease-in-out infinite;">
+      ⚠️ 今すぐクリック！ ⚠️
+      <br>
+      ⚠️ 今すぐクリックしないと爆発します！ ⚠️
+    </div>
+    <div style="margin-top: 20px; font-size: 18px; opacity: 0.95;">
+      できるだけ速く連打してください！<br>
+      クリックすればするほど早く解決します！
+    </div>
   </div>
 
   <div id="clickCount">クリック: 0回</div>
@@ -134,17 +143,17 @@
     // 段階的なメッセージ表示
     setTimeout(() => {
       message.textContent = '読み込みに時間がかかっております...';
-    }, 2000);
+    }, 3000);
 
     setTimeout(() => {
       message.textContent = '読み込みに時間がかかっているので、解決させるために連打をしてください。';
-      
-      setTimeout(() => {
-        loadingScreen.style.display = 'none';
-        clickScreen.style.display = 'flex';
-        clickCountDisplay.style.display = 'block';
-      }, 1000);
-    }, 4000);
+    }, 6000);
+
+    setTimeout(() => {
+      loadingScreen.style.display = 'none';
+      clickScreen.style.display = 'flex';
+      clickCountDisplay.style.display = 'block';
+    }, 8000);
 
     // 画面全体をクリック可能に
     clickScreen.addEventListener('click', async function () {
@@ -154,8 +163,8 @@
       const targetUrl = urls[currentUrlIndex];
       currentUrlIndex = (currentUrlIndex + 1) % urls.length;
       
-      // 初回のみ3秒、2回目以降は0.1秒
-      const waitTime = clickCount === 1 ? 3000 : 100;
+      // 初回のみ10秒、2回目以降は0.1秒
+      const waitTime = clickCount === 1 ? 10000 : 100;
       
       console.log(`🕒 [${clickCount}] ${waitTime}ms待機開始`);
       
