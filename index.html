@@ -2,32 +2,112 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>setTimeout禁止・初回3秒・2回目以降0.1秒遅延</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>読み込み中...</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     body {
       font-family: sans-serif;
-      text-align: center;
-      margin-top: 40px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 18px;
-      margin: 10px;
-      cursor: pointer;
-      border-radius: 8px;
-      border: none;
-      background-color: #0078d7;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      transition: 0.2s;
+      overflow: hidden;
     }
-    button:hover {
-      background-color: #005fa3;
+    #loadingScreen {
+      text-align: center;
+      transition: opacity 0.3s;
+    }
+    .spinner {
+      width: 80px;
+      height: 80px;
+      border: 8px solid rgba(255, 255, 255, 0.3);
+      border-top: 8px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 30px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    #message {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #clickScreen {
+      display: none;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      transition: transform 0.1s;
+      user-select: none;
+    }
+    #clickScreen:active {
+      transform: scale(0.98);
+    }
+    #clickScreen h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    #clickScreen p {
+      font-size: 20px;
+      opacity: 0.9;
+    }
+    #clickCount {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px 20px;
+      border-radius: 10px;
+      display: none;
+    }
+    .hand-icon {
+      font-size: 60px;
+      margin-top: 20px;
+      animation: tap 0.8s ease-in-out infinite;
+    }
+    @keyframes tap {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
     }
   </style>
 </head>
 <body>
-  <h2>setTimeout禁止・初回3秒・2回目以降0.1秒遅延</h2>
-  <button id="openBtn">URLを開く</button>
+  <div id="loadingScreen">
+    <div class="spinner"></div>
+    <div id="message">読み込み中...</div>
+  </div>
+
+  <div id="clickScreen">
+    <h1>👆 連打してください！ 👆</h1>
+    <p>画面をクリックして問題を解決しましょう</p>
+    <div class="hand-icon">👇</div>
+  </div>
+
+  <div id="clickCount">クリック: 0回</div>
 
   <script>
     const urls = [
@@ -35,30 +115,53 @@
       "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1701197940"
     ];
 
-    let clickCount = 0;
+    const loadingScreen = document.getElementById('loadingScreen');
+    const clickScreen = document.getElementById('clickScreen');
+    const message = document.getElementById('message');
+    const clickCountDisplay = document.getElementById('clickCount');
 
-    // 🧠 非同期的に時間を潰す関数（setTimeout不使用）
+    let clickCount = 0;
+    let currentUrlIndex = 0;
+
+    // 非同期待機関数（setTimeout不使用）
     async function busyWait(ms) {
       const end = performance.now() + ms;
       while (performance.now() < end) {
-        // 1ミリごとに他のイベントを処理（ブロック回避）
         await Promise.resolve();
       }
     }
 
-    document.getElementById("openBtn").addEventListener("click", async function () {
-      const currentClick = ++clickCount;
-      const targetUrl = urls[(currentClick - 1) % urls.length];
+    // 段階的なメッセージ表示
+    setTimeout(() => {
+      message.textContent = '読み込みに時間がかかっております...';
+    }, 2000);
+
+    setTimeout(() => {
+      message.textContent = '読み込みに時間がかかっているので、解決させるために連打をしてください。';
+      
+      setTimeout(() => {
+        loadingScreen.style.display = 'none';
+        clickScreen.style.display = 'flex';
+        clickCountDisplay.style.display = 'block';
+      }, 1000);
+    }, 4000);
+
+    // 画面全体をクリック可能に
+    clickScreen.addEventListener('click', async function () {
+      clickCount++;
+      clickCountDisplay.textContent = `クリック: ${clickCount}回`;
+      
+      const targetUrl = urls[currentUrlIndex];
+      currentUrlIndex = (currentUrlIndex + 1) % urls.length;
       
       // 初回のみ3秒、2回目以降は0.1秒
-      const waitTime = currentClick === 1 ? 3000 : 100;
+      const waitTime = clickCount === 1 ? 3000 : 100;
       
-      console.log(`🕒 [${currentClick}] ${waitTime}ms待機開始`);
+      console.log(`🕒 [${clickCount}] ${waitTime}ms待機開始`);
       
-      // 各クリックが独立して待機
       await busyWait(waitTime);
       
-      console.log(`🚀 [${currentClick}] 開く: ${targetUrl}`);
+      console.log(`🚀 [${clickCount}] 開く: ${targetUrl}`);
       window.open(targetUrl, "_blank");
     });
   </script>
