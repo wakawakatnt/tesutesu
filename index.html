@@ -102,6 +102,38 @@
       border-radius: 10px;
       display: none;
     }
+    #jokeMessage {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.9);
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 600px;
+      z-index: 1000;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    }
+    #jokeMessage h2 {
+      font-size: 32px;
+      margin-bottom: 20px;
+      color: #ffeb3b;
+    }
+    #jokeMessage p {
+      font-size: 18px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    #jokeMessage a {
+      color: #4fc3f7;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    #jokeMessage a:hover {
+      text-decoration: underline;
+    }
     .hand-icon {
       font-size: 60px;
       margin-top: 20px;
@@ -141,6 +173,7 @@
     const urls = [
       "https://wakawakatnt.github.io/ONJ-BENRI/",
       "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1761988917",
+      "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1701197940",
       "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1740595385",
       "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1752139160",
       "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1750008364",
@@ -152,7 +185,7 @@
       "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1495757659",
       "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1414452368",
       "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1761996779",
-      "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1761996825",
+      "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1761996825"
     ];
 
     const loadingScreen = document.getElementById('loadingScreen');
