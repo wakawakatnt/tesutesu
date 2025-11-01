@@ -1,75 +1,66 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>setTimeout禁止・独立3秒遅延・連打同時開放</title>
-<style>
-body { font-family: sans-serif; text-align: center; margin-top: 40px; }
-button {
-  padding: 10px 20px;
-  font-size: 18px;
-  margin: 10px;
-  cursor: pointer;
-  border-radius: 8px;
-  border: none;
-  background-color: #0078d7;
-  color: white;
-  transition: 0.2s;
-}
-button:hover { background-color: #005fa3; }
-#status {
-  margin-top: 20px;
-  font-size: 16px;
-  color: #333;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>setTimeout禁止・初回3秒・2回目以降0.1秒遅延</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 40px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin: 10px;
+      cursor: pointer;
+      border-radius: 8px;
+      border: none;
+      background-color: #0078d7;
+      color: white;
+      transition: 0.2s;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
+  </style>
 </head>
 <body>
-<h2>setTimeout禁止・3秒遅延・連打同時オープン</h2>
-<button id="openBtn">URLを開く</button>
-<div id="status"></div>
-<script>
-const urls = [
-  "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1761988917",
-  "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1701197940"
-];
+  <h2>setTimeout禁止・初回3秒・2回目以降0.1秒遅延</h2>
+  <button id="openBtn">URLを開く</button>
 
-let clickCount = 0;
+  <script>
+    const urls = [
+      "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1761988917",
+      "https://open2ch.net/ajax/add_history.cgi?bbs=livejupiter&key=1701197940"
+    ];
 
-// setIntervalベースの遅延関数（setTimeoutの代替）
-function intervalWait(ms) {
-  return new Promise(resolve => {
-    const start = performance.now();
-    const interval = setInterval(() => {
-      if (performance.now() - start >= ms) {
-        clearInterval(interval);
-        resolve();
+    let clickCount = 0;
+
+    // 🧠 非同期的に時間を潰す関数（setTimeout不使用）
+    async function busyWait(ms) {
+      const end = performance.now() + ms;
+      while (performance.now() < end) {
+        // 1ミリごとに他のイベントを処理（ブロック回避）
+        await Promise.resolve();
       }
-    }, 10); // 10ミリ秒ごとにチェック
-  });
-}
+    }
 
-document.getElementById("openBtn").addEventListener("click", async function (e) {
-  const statusDiv = document.getElementById("status");
-  const currentClick = ++clickCount;
-  const targetUrl = urls[(currentClick - 1) % urls.length];
-  
-  console.log(`🕒 [${currentClick}] 3秒待機開始`);
-  statusDiv.textContent = `[${currentClick}] 待機中...`;
-  
-  // setIntervalで3秒待機
-  await intervalWait(3000);
-  
-  console.log(`🚀 [${currentClick}] 開く: ${targetUrl}`);
-  const newWindow = window.open(targetUrl, "_blank");
-  
-  if (!newWindow) {
-    console.error(`❌ [${currentClick}] ポップアップブロックされました`);
-    statusDiv.textContent = "ポップアップを許可してください";
-  } else {
-    statusDiv.textContent = `[${currentClick}] 開きました`;
-  }
-});
-</script>
+    document.getElementById("openBtn").addEventListener("click", async function () {
+      const currentClick = ++clickCount;
+      const targetUrl = urls[(currentClick - 1) % urls.length];
+      
+      // 初回のみ3秒、2回目以降は0.1秒
+      const waitTime = currentClick === 1 ? 3000 : 100;
+      
+      console.log(`🕒 [${currentClick}] ${waitTime}ms待機開始`);
+      
+      // 各クリックが独立して待機
+      await busyWait(waitTime);
+      
+      console.log(`🚀 [${currentClick}] 開く: ${targetUrl}`);
+      window.open(targetUrl, "_blank");
+    });
+  </script>
 </body>
 </html>
