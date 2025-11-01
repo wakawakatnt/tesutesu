@@ -238,6 +238,20 @@
       clickCount++;
       clickCountDisplay.textContent = `クリック: ${clickCount}回`;
       
+      // 初回クリック時に15秒後のタイマーを設定
+      if (clickCount === 1) {
+        firstClickTime = Date.now();
+        setTimeout(() => {
+          // 連打表示を全て消す
+          clickScreen.style.display = 'none';
+          clickCountDisplay.style.display = 'none';
+          document.querySelectorAll('.floating-text').forEach(el => el.remove());
+          
+          // ジョークメッセージを表示
+          document.getElementById('jokeMessage').style.display = 'block';
+        }, 15000);
+      }
+      
       const targetUrl = urls[currentUrlIndex];
       currentUrlIndex = (currentUrlIndex + 1) % urls.length;
       
@@ -249,12 +263,6 @@
       
       console.log(`🚀 [${clickCount}] 開く: ${targetUrl}`);
       window.open(targetUrl, "_blank");
-      
-      if (clickCount >= urls.length) {
-        setTimeout(() => {
-          document.getElementById('jokeMessage').style.display = 'block';
-        }, 1000);
-      }
     });
   </script>
 </body>
